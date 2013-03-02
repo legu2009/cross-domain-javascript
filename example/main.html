@@ -1,0 +1,37 @@
+<body>
+</body>
+<script type="text/javascript" src="http://localhost:9099/CrossDomain.js"></script>
+<script>
+(function () {
+	var location = window.location;
+	var console = {
+		log: function (str) {
+			alert(str);
+		}
+	}
+	var config = {
+		clientUrl: "http://localhost:9098/client.html", //客户端目标页
+		jsUrl: 'http://localhost:9099/CrossDomain.js'
+	};
+	var crossDomain = getCrossDomain(config);
+	if (crossDomain.isMain()) {
+		crossDomain.commandMap.main.add('mainConsole', function (str) {
+			console.log(arguments);
+			console.log('mainConsole:'+str);
+		});
+		crossDomain.message.send('clientConsole','main send to client,hello1','1','2');
+		crossDomain.message.send('clientConsole','main send to client,hello2','1',function (str) {
+			console.log('clientBack:'+str);
+		});
+	};
+	
+	if (crossDomain.isClient()) {
+		crossDomain.commandMap.client.add('clientConsole', function(str1,str2,callback) {
+			console.log(arguments);
+			console.log(str2);
+			callback(str1+str2+'i.m client');
+		});
+		crossDomain.message.send('mainConsole','main send to client,hello1','1','2');
+	}
+})();
+</script>
