@@ -3,35 +3,35 @@
 <script type="text/javascript" src="http://localhost:9099/CrossDomain.js"></script>
 <script>
 (function () {
-	var location = window.location;
-	var console = {
+	var host = window.location.host;
+	var slice = Array.prototype.slice;
+	typeof console == "undefined" && (console = {
 		log: function (str) {
 			alert(str);
 		}
-	}
+	});
 	var config = {
-		clientUrl: "http://localhost:9098/client.html", //客户端目标页
-		jsUrl: 'http://localhost:9099/CrossDomain.js'
+		clientUrl: "http://localhost:9098/client.html"
 	};
-	var crossDomain = getCrossDomain(config);
-	if (crossDomain.isMain()) {
-		crossDomain.commandMap.main.add('mainConsole', function (str) {
-			console.log(arguments);
-			console.log('mainConsole:'+str);
-		});
-		crossDomain.message.send('clientConsole','main send to client,hello1','1','2');
-		crossDomain.message.send('clientConsole','main send to client,hello2','1',function (str) {
-			console.log('clientBack:'+str);
-		});
-	};
-	
+	var crossDomain = getCrossDomain(config);	
 	if (crossDomain.isClient()) {
-		crossDomain.commandMap.client.add('clientConsole', function(str1,str2,callback) {
-			console.log(arguments);
-			console.log(str2);
-			callback(str1+str2+'i.m client');
+		var clientMap = {
+			'你的名字？': '顾伟',
+			'你的邮箱？': '89415119@qq.com',
+			'今天日期？': new Date().toString()
+		}
+		crossDomain.clientCommand.add('clientCall', function() {
+			var callback = arguments[arguments.length-1];
+			var ary = slice.call(arguments, 0, -1);
+			console.log(host+':'+ary.join(','));
+			for (var i =0;i<ary.length;i++) {
+				ary[i] = clientMap[ary[i]]||ary[i];
+			}
+			console.log(host+':'+ary);
+			callback.apply(null,ary);
+			
 		});
-		crossDomain.message.send('mainConsole','main send to client,hello1','1','2');
+		crossDomain.message.send('mainCall','client call 9099','hello2');
 	}
 })();
 </script>

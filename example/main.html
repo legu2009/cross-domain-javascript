@@ -1,37 +1,36 @@
 <body>
 </body>
+<script type="text/javascript" src="https://raw.github.com/douglascrockford/JSON-js/master/json2.js"></script>
 <script type="text/javascript" src="http://localhost:9099/CrossDomain.js"></script>
 <script>
 (function () {
-	var location = window.location;
-	var console = {
+	var host = window.location.host;
+	var slice = Array.prototype.slice;
+	typeof console == "undefined" && (console = {
 		log: function (str) {
 			alert(str);
 		}
-	}
+	});
 	var config = {
-		clientUrl: "http://localhost:9098/client.html", //客户端目标页
-		jsUrl: 'http://localhost:9099/CrossDomain.js'
+		clientUrl: "http://localhost:9098/client.html"
 	};
 	var crossDomain = getCrossDomain(config);
 	if (crossDomain.isMain()) {
-		crossDomain.commandMap.main.add('mainConsole', function (str) {
-			console.log(arguments);
-			console.log('mainConsole:'+str);
+		function callback () {
+			console.log(host+':'+slice.call(arguments, 0).join(','));
+		}
+		crossDomain.mainCommand.add('mainCall', function() {
+			var callback = arguments[arguments.length-1];
+			var ary = slice.call(arguments, 0, -1);
+			console.log(host+':'+ary.join(','));
+			callback.apply(null,ary);
+			
 		});
-		crossDomain.message.send('clientConsole','main send to client,hello1','1','2');
-		crossDomain.message.send('clientConsole','main send to client,hello2','1',function (str) {
-			console.log('clientBack:'+str);
-		});
+		crossDomain.message.send('clientCall','你好，我是9099');
+		crossDomain.message.send('clientCall','你的名字？',callback);
+		crossDomain.message.send('clientCall','你的邮箱？',callback);
+		crossDomain.message.send('clientCall','你的邮箱？', '今天日期？',{'aa':123},callback);
 	};
 	
-	if (crossDomain.isClient()) {
-		crossDomain.commandMap.client.add('clientConsole', function(str1,str2,callback) {
-			console.log(arguments);
-			console.log(str2);
-			callback(str1+str2+'i.m client');
-		});
-		crossDomain.message.send('mainConsole','main send to client,hello1','1','2');
-	}
 })();
 </script>
