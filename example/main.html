@@ -1,6 +1,6 @@
 <body>
 </body>
-<script type="text/javascript" src="https://raw.github.com/douglascrockford/JSON-js/master/json2.js"></script>
+<!--script type="text/javascript" src="https://raw.github.com/douglascrockford/JSON-js/master/json2.js"></script-->
 <script type="text/javascript" src="https://raw.github.com/legu2009/cross-domain-javascript/master/example/crossDomain.js"></script>
 <script>
 (function () {
@@ -15,6 +15,7 @@
 		clientUrl: "http://localhost:9098/client.html"
 	};
 	var crossDomain = getCrossDomain(config);
+	/*
 	crossDomain.message.set({
 		params2str: function () {
 			return JSON.stringify(slice.call(arguments, 0));
@@ -22,7 +23,7 @@
 		str2params: function (str) {
 			return JSON.parse(str);
 		}
-	})
+	})*/
 	if (crossDomain.isMain()) {
 		function callback () {
 			console.log(host+':'+slice.call(arguments, 0).join(','));
