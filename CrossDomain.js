@@ -476,17 +476,23 @@
 					}
 				})
 				win.messageObj = messageObj;
+				win.proxy = {
+					send : function() {
+						messageObj.send.apply(messageObj, arguments);
+					},
+					set: function () {
+						messageObj.set.apply(messageObj, arguments);
+					}
+				};
 			} else {//主端
 				if(messageSport == 'name') {
 					var proxyWin;
 					messageObj = {
-						send :function() {
-							var messageObj = proxyWin.messageObj;
-							messageObj.send.apply(messageObj, arguments);
+						send : function() {
+							proxyWin.proxy.send.apply(proxyWin, arguments);
 						},
 						set: function () {
-							var messageObj = proxyWin.messageObj;
-							messageObj.send.set(messageObj, arguments);
+							proxyWin.proxy.set.apply(proxyWin, arguments);
 						},
 						command: mainCommand
 					};
