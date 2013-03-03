@@ -2,7 +2,7 @@
 			
 	var slice = Array.prototype.slice;
 	var urlReg = /^[^:]+:\/*[^\/]+/;
-	var _sport = !!win.postMessage ? 'postMessage' : 'name';
+	var messageSport = !!win.postMessage ? 'postMessage' : 'name';
 	var hasOwn = Object.prototype.hasOwnProperty;
 	
 	//============================公共函数===========================
@@ -11,12 +11,14 @@
 			element.attachEvent('on' + event, fn);
 		} : function(element, event, fn) {
 			element.addEventListener(event, fn, false);
-		},
+		},	
 		isSameDomain: function (urlA, urlB) {//简单写的，可能有误
 			var strA = urlA.match(urlReg)[0].replace(/:80$/,'').replace(/:\/+/,''),strB = urlB.match(urlReg)[0].replace(/:80$/,'').replace(/:\/+/,'');
 			return  strA == strB;
 		},
-		getCurrentScript: function () {//来自正妹的mass框架
+		//来自司徒正妹的mass框架
+		//https://github.com/RubyLouvre/mass-Framework/blob/master/mass.js line 407
+		getCurrentScript: function () {
 			if (doc.currentScript) { 
 				return doc.currentScript.src;
 			}
@@ -41,13 +43,13 @@
 				}
 			}
 		},
-	 /**
-	  * win动态添加script结点，载入后回调
-	  * @param {window} win window对象
-	  * @param {String} url script的引用路径
-	  * @param {Function} callback？ script加载完成，回调方法
-	  * @return {Node} script结点
-	  */
+		 /**
+		  * win动态添加script结点，载入后回调
+		  * @param {window} win window对象
+		  * @param {String} url script的引用路径
+		  * @param {Function} callback？ script加载完成，回调方法
+		  * @return {Node} script结点
+		  */
 		scriptLoad : function(win, url, callback) {
 			var head;
 			var doc = win.document;
@@ -90,15 +92,15 @@
 			doc.body.appendChild(frame);
 			return frame;
 		},
-	 /**
-	  * 对象obj的name方法重写，增加setReady方法
-	  *     在调用setReady之前，调用函数，存储参数入list，
-	  *     在调用setReady时，批量执行list存储的参数(可延迟执行)
-	  *     在调用setReady之后，调用函数，立即执行，
-	  * @param {Object} obj 对象
-	  * @param {String} name 方法的对应属性名字
-	  * @return {Node} ifrme结点
-	  */
+		 /**
+		  * 对象obj的name方法重写，增加setReady方法
+		  *     在调用setReady之前，调用函数，存储参数入list，
+		  *     在调用setReady时，批量执行list存储的参数(可延迟执行)
+		  *     在调用setReady之后，调用函数，立即执行，
+		  * @param {Object} obj 对象
+		  * @param {String} name 方法的对应属性名字
+		  * @return {Node} ifrme结点
+		  */
 		runReady : function(obj, name) {
 			var fun = obj[name];
 			var _ready = false;
@@ -121,50 +123,54 @@
 		}
 	};
 	
-	
 	//============================通信对象===========================
+	//底层通信对象
 	function message() {
-		//底层通信对象
 		var hash = '';
 		var message = {
-			sport : _sport,
-			send : _sport == 'name'? function(data) {//send(编码)
+			sport : messageSport,
+			send : messageSport == 'name'? function(data) {//send(编码)
 				this.proxy.name = data;
 			}:  function(data) {
 				this.proxy.postMessage(data, '*');
 			},
-			get : function(data) {//解码,get(解码),绑定该get
-				alert(data);
+			get : function(data) {//get(解码),绑定该get
 				this.child.get(data);
 			},
-			setProxy: function (proxy) {
-				message.proxy = proxy;
-			},
 			bindMessage: function () {
-				if (_sport == 'postMessage') {
+				if (messageSport == 'postMessage') {
 					util.addEvent(win,'message', function (e) {
 						message.get(e.data);
 					})
 				} else {
 					setInterval(function() {
-						if(win.name !== hash) {
+						if(win.name != hash) {
 							hash = win.name;
 							message.get(hash);
 						}
 					}, 50);
 				}
 			},
+			set: function (name, value) {
+				if( typeof name == 'string') {
+					message[name] = value;
+				} else {
+					for (var i in name) {
+						if(hasOwn.call(name, i)) {
+							message[i] = name[i];
+						}
+					}
+				}
+			}
+		};
+		message.set({
 			params2str: function () {
 				return slice.call(arguments,0).join('<{PA}>');
 			},
 			str2params: function (str) {
 				return str.split('<{PA}>');
-			},
-			dealparams: function (params2str, str2params) {
-				message.params2str = params2str;
-				message.str2params = str2params;
 			}
-		};
+		});
 		message.bindMessage();
 		return message;
 	};
@@ -175,21 +181,20 @@
 		var sendMap = {};//主动发出的消息
 		var cancelMap = {};//正在处理中的数据，通知不需要再传送
 		
-		function push(ary, obj) {
-			//obj的值，添加到ary数组中
+		function push(ary, obj) {//obj的值，添加到ary数组中
 			for(var i in obj) {
-				if(obj.hasOwnProperty(i)) {
+				if(hasOwn.call(obj, i)) {
 					ary.push(obj[i]);
 				}
 			}
 			return ary;
 		}
 		
-		function postStr() {
+		function postStr(separator) {
 			var ary = [];
 			push(ary, sendMap);
 			push(ary, cancelMap);
-			return ary.join(ieSeparator[1]);
+			return ary.join(separator);
 		}
 		
 		var fun = function () {};
@@ -197,7 +202,7 @@
 		var resultObj = new fun();
 		message.child = resultObj;
 		
-		resultObj.ieSeparator = ieSeparator;//可以理解为只读属性
+		resultObj.set('ieSeparator', ieSeparator);
 		resultObj.send = function (opt, uid) {
 			//  12345
 			//=>S<{IE}>0<{IE}>12345
@@ -206,26 +211,28 @@
 			//  C,0
 			//=>S<{IE}>0<{IE}>12345{<IE>}S<{IE}>1<{IE}>67890{<IE>}C<{IE}>0
 			var data;
+			var ieSeparator = this.ieSeparator;
 			if (opt == 'C' && !!uid){//发送“取消发送”的消息
-				cancelMap[uid] = [opt,uid].join(this.ieSeparator[0]);
+				cancelMap[uid] = [opt,uid].join(ieSeparator[0]);
 			} else {
 				data = opt;
 				uid = uuid++;
-				sendMap[uid] = ['S',uid,data].join(this.ieSeparator[0]);
+				sendMap[uid] = ['S',uid,data].join(ieSeparator[0]);
 			}
-			message.send(postStr());
+			message.send(postStr(ieSeparator[1]));
 		};
 		resultObj.get = function (data) {
 			//  S<{IE}>0<{IE}>12345{<IE>}S<{IE}>1<{IE}>67890{<IE>}C<{IE}>0
 			//=>S<{IE}>0<{IE}>12345
 			//=>S<{IE}>1<{IE}>67890
-			var datas = data.split(this.ieSeparator[1]), map = {};
+			var ieSeparator = this.ieSeparator;
+			var datas = data.split(ieSeparator[1]), map = {};
 			var params, opt, uid;
 			for(var i = 0, len = datas.length; i < len; i++) {
-				params = datas[i].split(this.ieSeparator[0]);
+				params = datas[i].split(ieSeparator[0]);
 				opt = params.shift(); 
 				uid = params.shift();
-				data = params.join(this.ieSeparator[0]);
+				data = params.join(ieSeparator[0]);
 				if(opt == 'S') {
 					map[uid] = 1;
 					if (!cancelMap[uid]) { //未处理过，进行处理
@@ -246,13 +253,12 @@
 	}
 
 	function prefixMessage (message, prefix) {
-		
 		var fun = function () {};
 		fun.prototype = message;
 		var resultObj = new fun();
 		message.child = resultObj;
 		
-		resultObj.prefix = prefix|| '_crossD_';//可以理解为只读属性
+		resultObj.set('prefix', prefix||'_crossD_');
 		resultObj.send =  function (data) {
 			message.send(this.prefix+data);
 		};
@@ -275,7 +281,7 @@
 		var resultObj = new fun();
 		message.child = resultObj;
 		
-		resultObj.cbSeparator = cbSeparator;//可以理解为只读属性
+		resultObj.set('cbSeparator', cbSeparator);
 		resultObj.send = function (opt, uid, data) {
 			//   '123456', fn
 			// =>'S<{CB}>1<{CB}>1<{CB}>123456'
@@ -284,8 +290,9 @@
 			//   'B',2,'abcde'
 			// =>'B<{CB}>2<{CB}>abcde'
 			var callback, needCallback = 0;
+			var cbSeparator = this.cbSeparator;
 			if (opt == 'B' && !!data) {
-				message.send(['B',uid,data].join(this.cbSeparator));
+				message.send(['B',uid,data].join(cbSeparator));
 			} else {
 				callback = uid;
 				data = opt;
@@ -294,7 +301,7 @@
 					needCallback = 1;
 					_callbackMap[uid] = callback;
 				}
-				message.send(['S',uid,needCallback,data].join(this.cbSeparator));
+				message.send(['S',uid,needCallback,data].join(cbSeparator));
 			}
 		};
 		resultObj.get = function (str) {
@@ -302,12 +309,13 @@
 			//=>123456,function send('B',1, resultStr);
 			//  'B<{CB}>2<{CB}>abcde'
 			//=>
+			var cbSeparator = this.cbSeparator;
 			var params = str.split(cbSeparator), callback;
 			var needCallback, data;
 			var opt = params.shift(), uid = params.shift();
 			if(opt == 'S') {
 				needCallback = params.shift();
-				data = params.join(this.cbSeparator);
+				data = params.join(cbSeparator);
 				if (needCallback == 1) {
 					callback = function () {
 						resultObj.send('B',uid, message.params2str.apply(message, arguments));
@@ -317,7 +325,7 @@
 				}
 				this.child.get(data, callback);
 			} else {
-				data = params.join(this.cbSeparator);
+				data = params.join(cbSeparator);
 				_callbackMap[uid].apply(null, message.str2params(data));
 				delete _callbackMap[uid];
 			}
@@ -332,7 +340,7 @@
 		var resultObj = new fun();
 		cbmessage.child = resultObj;
 		
-		resultObj.command = command;
+		resultObj.set('command', command);
 		resultObj.send = function () {//fnName, params, callback
 			//   'fnName', 'a', 'b', callback
 			// =>'fnName<{DEL}>a<{DEL}>b',callback
@@ -345,16 +353,14 @@
 				cbmessage.send(cbmessage.params2str.apply(cbmessage, slice.call(arguments, 0)));
 			}
 		};
-		resultObj.setCommand = function (command) {
-			resultObj.command = command;
-		};
 		resultObj.get = function (str, callback) {
 			//  'S<{CB}>1<{CB}>1<{CB}>123456'
 			//=>S<{IE}>0<{IE}>12345
 			//=>S<{IE}>1<{IE}>67890
 			var params =  cbmessage.str2params(str);
+			var command = this.command;
 			params.push(callback)
-			this.command.exec.apply(this.command, params);
+			command.exec.apply(command, params);
 		};
 		return resultObj;
 	}	
@@ -383,7 +389,6 @@
 					arguments[len-1](fun);
 				}
 			}
-			return this;
 		},
 		/**
 		 * this.command 添加属性，参数为一个时，则传入Object,将Object的自己的属性扩展到_command上
@@ -394,7 +399,7 @@
 			if(arguments.length == 1) {
 				for(var i in name) {
 					if(hasOwn.call(name, i)) {
-						this.add(i, name[i]);
+						this.command[i] = name[i];
 					}
 				}
 			} else {
@@ -410,19 +415,15 @@
 	 * @return {Object} ifrme结点
 	 */
 	var jsURL = util.getCurrentScript();
+	var href = location.href;
 	function getCrossDomain (config) {
 		var messageObj;
-		var commandMap = {
-			'main': new Command(),//1
-			'client': new Command()//2
-		};
+		var mainCommand = new Command();
+		var clientCommand = new Command();
 		
-		var href = location.href;
 		var clientUrl = config.clientUrl;
-		var isSameDomain = util.isSameDomain(href, clientUrl);
-		var isClient = href.indexOf(clientUrl) != -1, isProxy = href.indexOf('about:blank') != -1;
-		
-		var getMessaage = _sport == 'name'? function () {
+		var isSameDomain = config.isSameDomain || util.isSameDomain(href, clientUrl);
+		var getMessaage = messageSport == 'name'? function () {
 			var obj = dealMessage(callbackMessage(prefixMessage(ieMessage(message()), config.prefix)));
 			util.runReady(obj, 'send');
 			return obj;
@@ -431,6 +432,7 @@
 			util.runReady(obj, 'send');
 			return obj;
 		};
+		var isClient = href.indexOf(clientUrl) != -1, isProxy = href.indexOf('about:blank') != -1;
 		
 		var commandList = [];
 		commandList.exec = function () {
@@ -449,72 +451,72 @@
 				pageType = 2;
 				messageObj = getMessaage();
 				messageObj.send.setReady();
-				messageObj.setProxy(win.parent);
-				messageObj.setCommand(commandMap.client);//客户端
+				messageObj.set({proxy:win.parent,command:clientCommand});
 			} else {
 				pageType = 3;
 				messageObj = {
 					send : function() {
 						var command = this.command;
-						this.command.exec.apply(this.command, arguments);
-					}
+						command.exec.apply(command, arguments);
+					},
+					command: commandList.push(commandMap,mainCommand)//既是客户端，也是主端
 				};
-				commandList.push(commandMap.main,commandMap.client);//既是客户端，也是主端
-				messageObj.setCommand(commandList);
 			}
 		} else {
 			if(isProxy == true) {//IE6,7,name方式,情况存在 代理页
 				messageObj = getMessaage();
 				var frame = util.iframeLoad(clientUrl, function() {
-					messageObj.setProxy(frame.contentWindow);
+					messageObj.set('proxy',frame.contentWindow);
 					messageObj.send.setReady();
 				});
-				messageObj.setCommand ({
+				messageObj.set('command', {
 					exec : function() {
 						var command = win.mainMess.command;
 						command.exec.apply(command, arguments);
 					}
 				})
-				win.proxy = {
-					send : function() {
-						messageObj.send.apply(messageObj, arguments);
-					}
-				};
+				win.messageObj = messageObj;
 			} else {//主端
-				if(_sport == 'name') {
+				if(messageSport == 'name') {
 					var proxyWin;
 					messageObj = {
-						send : function() {
-							proxyWin.proxy.send.apply(proxyWin, arguments);
+						send :function() {
+							var messageObj = proxyWin.messageObj;
+							messageObj.send.apply(messageObj, arguments);
 						},
-						setCommand: function (command) {
-							this.command = command;
-						}
+						set: function () {
+							var messageObj = proxyWin.messageObj;
+							messageObj.send.set(messageObj, arguments);
+						},
+						command: mainCommand
 					};
 					util.runReady(messageObj, 'send');
+					util.runReady(messageObj, 'set');
 					var frame = util.iframeLoad('', function() {
 						proxyWin = frame.contentWindow;
 						proxyWin.mainMess = messageObj;
 						proxyWin.config = config;
 						util.scriptLoad(frame.contentWindow, jsURL, function() {
 							messageObj.send.setReady();
+							messageObj.set.setReady();
 						});
 					});
 				} else {
 					messageObj = getMessaage();
 					var frame = util.iframeLoad(clientUrl, function() {
-						messageObj.setProxy(frame.contentWindow);
+						messageObj.set('proxy', frame.contentWindow);
 						messageObj.send.setReady();
 					});
+					messageObj.set('command', mainCommand);
 				}
 				pageType = 1;
-				messageObj.setCommand(commandMap.main);//主端
 			}
 		}
 		
 		return {
 			message: messageObj, //通信对象
-			commandMap: commandMap, //命令集对象
+			mainCommand: mainCommand, 
+			clientCommand: clientCommand,
 			isMain: function () { //判断当前页面主端
 				return (pageType == 1 || pageType == 3);
 			},
@@ -524,7 +526,7 @@
 		}
 	};
 	
-	if (win.location.href.indexOf('about:blank') != -1&&win.mainMess&&!!win.config) {
+	if (href.indexOf('about:blank') != -1&&win.mainMess&&!!win.config) {
 		getCrossDomain(win.config);
 	}
 	

@@ -475,27 +475,30 @@
 						command.exec.apply(command, arguments);
 					}
 				})
-				win.proxy = {
-					send : function() {
-						messageObj.send.apply(messageObj, arguments);
-					}
-				};
+				win.messageObj = messageObj;
 			} else {//主端
 				if(messageSport == 'name') {
 					var proxyWin;
 					messageObj = {
-						send : function() {
-							proxyWin.proxy.send.apply(proxyWin, arguments);
+						send :function() {
+							var messageObj = proxyWin.messageObj;
+							messageObj.send.apply(messageObj, arguments);
+						},
+						set: function () {
+							var messageObj = proxyWin.messageObj;
+							messageObj.send.set(messageObj, arguments);
 						},
 						command: mainCommand
 					};
 					util.runReady(messageObj, 'send');
+					util.runReady(messageObj, 'set');
 					var frame = util.iframeLoad('', function() {
 						proxyWin = frame.contentWindow;
 						proxyWin.mainMess = messageObj;
 						proxyWin.config = config;
 						util.scriptLoad(frame.contentWindow, jsURL, function() {
 							messageObj.send.setReady();
+							messageObj.set.setReady();
 						});
 					});
 				} else {
