@@ -1,10 +1,10 @@
 <body>
 </body>
 <script type="text/javascript" src="https://raw.github.com/douglascrockford/JSON-js/master/json2.js"></script>
-<script type="text/javascript" src="https://raw.github.com/legu2009/cross-domain-javascript/master/CrossDomain.js"></script>
+<script type="text/javascript" src="https://raw.github.com/legu2009/cross-domain-javascript/master/example/crossDomain.js"></script>
 <script>
 (function () {
-	var host = window.location.host;
+    var host = window.location.host;
 	var slice = Array.prototype.slice;
 	typeof console == "undefined" && (console = {
 		log: function (str) {
@@ -14,25 +14,25 @@
 	var config = {
 		clientUrl: "http://localhost:9098/client.html"
 	};
-	var crossDomain = getCrossDomain(config);	
+	var crossDomain = getCrossDomain(config);
 	crossDomain.message.set({
 		params2str: function () {
-			return JSON.stringify(slice.call(arguments,0));
+			return JSON.stringify(slice.call(arguments, 0));
 		},
 		str2params: function (str) {
 			return JSON.parse(str);
 		}
-	});
+	})
 	if (crossDomain.isClient()) {
 		var clientMap = {
-			'你的名字？': '顾伟',
-			'你的邮箱？': '89415119@qq.com',
-			'今天日期？': new Date().toString()
+			'your name': 'guwei',
+			'your mail': '89415119@qq.com',
+			'the date': new Date().toString()
 		}
 		crossDomain.clientCommand.add('clientCall', function() {
 			try {
-				console.log(arguments[2].aa);
-			} catch (e) {};
+				console.log('aa:'+arguments[2].aa);
+			} catch (e) {}
 			var callback = arguments[arguments.length-1];
 			var ary = slice.call(arguments, 0, -1);
 			console.log(host+':'+ary.join(','));
