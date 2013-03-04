@@ -1,7 +1,7 @@
 <body>
 </body>
-<script type="text/javascript" src="http://localhost:9099/json2.js"></script>
-<script type="text/javascript" src="http://localhost:9099/crossDomain-all-about-blank.js"></script>
+<!--script type="text/javascript" src="http://localhost:9099/json2.js"></script-->
+<script type="text/javascript" src="http://localhost:9099/crossDomain-IE-about-blank.js"></script>
 <script>
 (function () {
     var host = window.location.host;
@@ -15,31 +15,32 @@
 		clientUrl: "http://localhost:9098/client.html"
 	};
 	var crossDomain = getCrossDomain(config);
-	
-	crossDomain.message.set({ 
+	/* 
+	crossDomain.message.set({
 		params2str: function () {
 			return JSON.stringify(slice.call(arguments, 0));
 		},
 		str2params: function (str) {
 			return JSON.parse(str);
 		}
-	});
-	if (crossDomain.isMain()) {
+	});*/
+	if (crossDomain.isMain()) {//调用命令方，主端
 		function callback () {
 			console.log(host+':'+slice.call(arguments, 0).join(','));
 		}
 		crossDomain.mainCommand.add('mainCall', function() {
+			//添加命令，函数最后一个参数是一个callback函数，将需要返回的数据，传入给callback函数
+			//主端需要支持某个命令，应该没有应用场景
 			var callback = arguments[arguments.length-1];
 			var ary = slice.call(arguments, 0, -1);
 			console.log(host+':'+ary.join(','));
-			callback.apply(null,ary);
+			callback.apply(null,ary);//即使有的API没有数据返回，也需要执行下callback
 			
 		});
-		crossDomain.message.send('clientCall','hello,i\'m main');
-		crossDomain.message.send('clientCall','your name',callback);
+		crossDomain.message.send('clientCall','hello,i\'m main');//调用命令
+		crossDomain.message.send('clientCall','your name',callback);//调用命令，并显示返回值
 		crossDomain.message.send('clientCall','your mail',callback);
-		crossDomain.message.send('clientCall','your mail', 'the date',{'aa':123},callback);
-		crossDomain.message.send('clientCall111','the date',callback);
+		crossDomain.message.send('clientCall','your mail', 'the date',{'aa':123},callback);//多参数支持
 	};
 	
 })();
