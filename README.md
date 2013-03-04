@@ -15,4 +15,4 @@ javascript通过window.name和window.postMessage实现跨浏览器的双向通�
 后期考虑：
     考虑2个第3方通过该方式提供API，公用about:blank，postMessage监听，减少页面的iframe个数
 
-有问题，欢迎指正，谢谢支持
+有问题，欢迎指正，谢谢支持,注释相关近期会补下，主要是crossDomain-IE-about-blank.js文件，其他的都差不多的。
