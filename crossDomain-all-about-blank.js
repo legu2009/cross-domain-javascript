@@ -45,6 +45,7 @@
 		},
 		 /**
 		  * 动态添加ifrme结点，设置url，载入后回调
+		  * @param {window} win window对象
 		  * @param {String} url ifrme地址
 		  * @param {Function} callback？ifrme加载完成，回调方法
 		  * @return {Node} ifrme结点
