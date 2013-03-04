@@ -417,6 +417,7 @@
 		};
 		
 		var pageType = 0;
+		var emptyFun = function () {};
 		if(isSameDomain) {//同域
 			if(isClient == true) {//iframe页
 				pageType = 2;
