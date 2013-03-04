@@ -24,7 +24,7 @@
 			return JSON.parse(str);
 		}
 	});*/
-	if (crossDomain.isMain()) {//µ÷ÓÃÃüÁî·½£¬Ö÷¶Ë
+	if (crossDomain.isMain()) {//è°ƒç”¨å‘½ä»¤æ–¹ï¼Œä¸»ç«¯
 		function callback (str) {
 			var str = slice.call(arguments).join(',') + '=>>';
 			return function () {
@@ -33,27 +33,27 @@
 			//console.log(host+':'+slice.call(arguments, 0).join(','));
 		}
 		crossDomain.mainCommand.add('mainCall', function() {
-			//Ìí¼ÓÃüÁî£¬º¯Êı×îºóÒ»¸ö²ÎÊıÊÇÒ»¸öcallbackº¯Êı£¬½«ĞèÒª·µ»ØµÄÊı¾İ£¬´«Èë¸øcallbackº¯Êı
-			//Ö÷¶ËĞèÒªÖ§³ÖÄ³¸öÃüÁî£¬Ó¦¸ÃÃ»ÓĞÓ¦ÓÃ³¡¾°
+			//æ·»åŠ å‘½ä»¤ï¼Œå‡½æ•°æœ€åä¸€ä¸ªå‚æ•°æ˜¯ä¸€ä¸ªcallbackå‡½æ•°ï¼Œå°†éœ€è¦è¿”å›çš„æ•°æ®ï¼Œä¼ å…¥ç»™callbackå‡½æ•°
+			//ä¸»ç«¯éœ€è¦æ”¯æŒæŸä¸ªå‘½ä»¤ï¼Œåº”è¯¥æ²¡æœ‰åº”ç”¨åœºæ™¯
 			console.log('mainCall:', slice.call(arguments));
 			var callback = arguments[arguments.length-1];
 			var ary = slice.call(arguments, 0, -1);
-			callback.apply(null,ary);//¼´Ê¹ÓĞµÄAPIÃ»ÓĞÊı¾İ·µ»Ø£¬Ò²ĞèÒªÖ´ĞĞÏÂcallback
+			callback.apply(null,ary);//å³ä½¿æœ‰çš„APIæ²¡æœ‰æ•°æ®è¿”å›ï¼Œä¹Ÿéœ€è¦æ‰§è¡Œä¸‹callback
 			
 		});
 	};
 	
-	if (crossDomain.isClient()) {//Ìá¹©ÃüÁî·½£¬¿Í»§¶Ë
+	if (crossDomain.isClient()) {//æä¾›å‘½ä»¤æ–¹ï¼Œå®¢æˆ·ç«¯
 		var clientMap = {
 			'your name': 'guwei',
 			'your mail': '89415119@qq.com',
 			'the date': new Date().toString()
 		}
 		crossDomain.clientCommand.add('clientCall', function() {
-			//Ìí¼ÓÃüÁî£¬º¯Êı×îºóÒ»¸ö²ÎÊıÊÇÒ»¸öcallbackº¯Êı£¬½«ĞèÒª·µ»ØµÄÊı¾İ£¬´«Èë¸øcallbackº¯Êı
+			//æ·»åŠ å‘½ä»¤ï¼Œå‡½æ•°æœ€åä¸€ä¸ªå‚æ•°æ˜¯ä¸€ä¸ªcallbackå‡½æ•°ï¼Œå°†éœ€è¦è¿”å›çš„æ•°æ®ï¼Œä¼ å…¥ç»™callbackå‡½æ•°
 			console.log('clientCall:',slice.call(arguments));
 			try {
-				console.log('aa:'+arguments[2].aa);//ÅĞ¶ÏJSONÖ§³Ö
+				console.log('aa:'+arguments[2].aa);//åˆ¤æ–­JSONæ”¯æŒ
 			} catch (e) {}
 			var callback = arguments[arguments.length-1];
 			var ary = slice.call(arguments, 0, -1);
@@ -61,14 +61,14 @@
 			for (var i =0;i<ary.length;i++) {
 				ary[i] = clientMap[ary[i]]||ary[i];
 			}
-			callback.apply(null,ary);//¼´Ê¹ÓĞµÄAPIÃ»ÓĞÊı¾İ·µ»Ø£¬Ò²ĞèÒªÖ´ĞĞÏÂcallback
+			callback.apply(null,ary);//å³ä½¿æœ‰çš„APIæ²¡æœ‰æ•°æ®è¿”å›ï¼Œä¹Ÿéœ€è¦æ‰§è¡Œä¸‹callback
 			
 		});
 	};
-	crossDomain.message.send('clientCall','hello,i\'m main');//µ÷ÓÃÃüÁî
-	crossDomain.message.send('clientCall','your name',callback('your name'));//µ÷ÓÃÃüÁî£¬²¢ÏÔÊ¾·µ»ØÖµ
+	crossDomain.message.send('clientCall','hello,i\'m main');//è°ƒç”¨å‘½ä»¤
+	crossDomain.message.send('clientCall','your name',callback('your name'));//è°ƒç”¨å‘½ä»¤ï¼Œå¹¶æ˜¾ç¤ºè¿”å›å€¼
 	crossDomain.message.send('clientCall','your mail',callback('your mail'));
-	crossDomain.message.send('clientCall','your mail', 'the date',{'aa':123},callback('your mail', 'the date',{'aa':123}));//¶à²ÎÊıÖ§³Ö
+	crossDomain.message.send('clientCall','your mail', 'the date',{'aa':123},callback('your mail', 'the date',{'aa':123}));//å¤šå‚æ•°æ”¯æŒ
 	crossDomain.message.send('mainCall','client call','hello2');
 })();
 </script>

@@ -5,18 +5,18 @@
 	var messageSport = !!win.postMessage ? 'postMessage' : 'name';
 	var hasOwn = Object.prototype.hasOwnProperty;
 	
-	//============================¹«¹²º¯Êı===========================
+	//============================å…¬å…±å‡½æ•°===========================
 	var util = {
 		addEvent: doc.attachEvent ? function(element, event, fn) {
 			element.attachEvent('on' + event, fn);
 		} : function(element, event, fn) {
 			element.addEventListener(event, fn, false);
 		},	
-		isSameDomain: function (urlA, urlB) {//¼òµ¥Ğ´µÄ£¬¿ÉÄÜÓĞÎó
+		isSameDomain: function (urlA, urlB) {//ç®€å•å†™çš„ï¼Œå¯èƒ½æœ‰è¯¯
 			var strA = urlA.match(urlReg)[0].replace(/:80$/,'').replace(/:\/+/,''),strB = urlB.match(urlReg)[0].replace(/:80$/,'').replace(/:\/+/,'');
 			return  strA == strB;
 		},
-		//À´×ÔË¾Í½ÕıÃÃµÄmass¿ò¼Ü
+		//æ¥è‡ªå¸å¾’æ­£å¦¹çš„massæ¡†æ¶
 		//https://github.com/RubyLouvre/mass-Framework/blob/master/mass.js line 407
 		getCurrentScript: function () {
 			if (doc.currentScript) { 
@@ -44,10 +44,10 @@
 			}
 		},
 		 /**
-		  * ¶¯Ì¬Ìí¼Óifrme½áµã£¬ÉèÖÃurl£¬ÔØÈëºó»Øµ÷
-		  * @param {String} url ifrmeµØÖ·
-		  * @param {Function} callback£¿ifrme¼ÓÔØÍê³É£¬»Øµ÷·½·¨
-		  * @return {Node} ifrme½áµã
+		  * åŠ¨æ€æ·»åŠ ifrmeç»“ç‚¹ï¼Œè®¾ç½®urlï¼Œè½½å…¥åå›è°ƒ
+		  * @param {String} url ifrmeåœ°å€
+		  * @param {Function} callbackï¼ŸifrmeåŠ è½½å®Œæˆï¼Œå›è°ƒæ–¹æ³•
+		  * @return {Node} ifrmeç»“ç‚¹
 		  */
 		iframeLoad : function(win, url, callback) {
 			var doc = win.document;
@@ -63,13 +63,13 @@
 			return frame;
 		},
 		 /**
-		  * ¶ÔÏóobjµÄname·½·¨ÖØĞ´£¬Ôö¼ÓsetReady·½·¨
-		  *     ÔÚµ÷ÓÃsetReadyÖ®Ç°£¬µ÷ÓÃº¯Êı£¬´æ´¢²ÎÊıÈëlist£¬
-		  *     ÔÚµ÷ÓÃsetReadyÊ±£¬ÅúÁ¿Ö´ĞĞlist´æ´¢µÄ²ÎÊı(¿ÉÑÓ³ÙÖ´ĞĞ)
-		  *     ÔÚµ÷ÓÃsetReadyÖ®ºó£¬µ÷ÓÃº¯Êı£¬Á¢¼´Ö´ĞĞ£¬
-		  * @param {Object} obj ¶ÔÏó
-		  * @param {String} name ·½·¨µÄ¶ÔÓ¦ÊôĞÔÃû×Ö
-		  * @return {Node} ifrme½áµã
+		  * å¯¹è±¡objçš„nameæ–¹æ³•é‡å†™ï¼Œå¢åŠ setReadyæ–¹æ³•
+		  *     åœ¨è°ƒç”¨setReadyä¹‹å‰ï¼Œè°ƒç”¨å‡½æ•°ï¼Œå­˜å‚¨å‚æ•°å…¥listï¼Œ
+		  *     åœ¨è°ƒç”¨setReadyæ—¶ï¼Œæ‰¹é‡æ‰§è¡Œlistå­˜å‚¨çš„å‚æ•°(å¯å»¶è¿Ÿæ‰§è¡Œ)
+		  *     åœ¨è°ƒç”¨setReadyä¹‹åï¼Œè°ƒç”¨å‡½æ•°ï¼Œç«‹å³æ‰§è¡Œï¼Œ
+		  * @param {Object} obj å¯¹è±¡
+		  * @param {String} name æ–¹æ³•çš„å¯¹åº”å±æ€§åå­—
+		  * @return {Node} ifrmeç»“ç‚¹
 		  */
 		runReady : function(obj, name) {
 			var fun = obj[name];
@@ -93,18 +93,18 @@
 		}
 	};
 	
-	//============================Í¨ĞÅ¶ÔÏó===========================
-	//µ×²ãÍ¨ĞÅ¶ÔÏó
+	//============================é€šä¿¡å¯¹è±¡===========================
+	//åº•å±‚é€šä¿¡å¯¹è±¡
 	function message() {
 		var hash = '';
 		var message = {
 			sport : messageSport,
-			send : messageSport == 'name'? function(data) {//send(±àÂë)
+			send : messageSport == 'name'? function(data) {//send(ç¼–ç )
 				this.proxy.name = data;
 			}:  function(data) {
 				this.proxy.postMessage(data, '*');
 			},
-			get : function(data) {//get(½âÂë),°ó¶¨¸Ãget
+			get : function(data) {//get(è§£ç ),ç»‘å®šè¯¥get
 				this.child.get(data);
 			},
 			bindMessage: function (win) {
@@ -148,10 +148,10 @@
 	function ieMessage (message, ieSeparator) {
 		ieSeparator || (ieSeparator = ['<{IE}>', '{<IE>}']);
 		var uuid = 0;
-		var sendMap = {};//Ö÷¶¯·¢³öµÄÏûÏ¢
-		var cancelMap = {};//ÕıÔÚ´¦ÀíÖĞµÄÊı¾İ£¬Í¨Öª²»ĞèÒªÔÙ´«ËÍ
+		var sendMap = {};//ä¸»åŠ¨å‘å‡ºçš„æ¶ˆæ¯
+		var cancelMap = {};//æ­£åœ¨å¤„ç†ä¸­çš„æ•°æ®ï¼Œé€šçŸ¥ä¸éœ€è¦å†ä¼ é€
 		
-		function push(ary, obj) {//objµÄÖµ£¬Ìí¼Óµ½aryÊı×éÖĞ
+		function push(ary, obj) {//objçš„å€¼ï¼Œæ·»åŠ åˆ°aryæ•°ç»„ä¸­
 			for(var i in obj) {
 				if(hasOwn.call(obj, i)) {
 					ary.push(obj[i]);
@@ -182,7 +182,7 @@
 			//=>S<{IE}>0<{IE}>12345{<IE>}S<{IE}>1<{IE}>67890{<IE>}C<{IE}>0
 			var data;
 			var ieSeparator = this.ieSeparator;
-			if (opt == 'C' && !!uid){//·¢ËÍ¡°È¡Ïû·¢ËÍ¡±µÄÏûÏ¢
+			if (opt == 'C' && !!uid){//å‘é€â€œå–æ¶ˆå‘é€â€çš„æ¶ˆæ¯
 				cancelMap[uid] = [opt,uid].join(ieSeparator[0]);
 			} else {
 				data = opt;
@@ -205,7 +205,7 @@
 				data = params.join(ieSeparator[0]);
 				if(opt == 'S') {
 					map[uid] = 1;
-					if (!cancelMap[uid]) { //Î´´¦Àí¹ı£¬½øĞĞ´¦Àí
+					if (!cancelMap[uid]) { //æœªå¤„ç†è¿‡ï¼Œè¿›è¡Œå¤„ç†
 						this.send('C', uid);
 						this.child.get(data);
 					}
@@ -233,7 +233,7 @@
 			message.send(this.prefix+data);
 		};
 		resultObj.get = function (str) {
-			if (!!str && str.indexOf(this.prefix) == 0) {//½âÂë³É¹¦£¬ÇÒÇ°×ºÎªprefix
+			if (!!str && str.indexOf(this.prefix) == 0) {//è§£ç æˆåŠŸï¼Œä¸”å‰ç¼€ä¸ºprefix
 				this.child.get(str.substr(this.prefix.length));
 			}
 		};
@@ -336,34 +336,34 @@
 	}	
 
 
-	//ÃüÁî¶ÔÏó
+	//å‘½ä»¤å¯¹è±¡
 	function Command () {
 		this.command = {}; 
 	}
 	Command.prototype = {
 		/**
-		 * Ö´ĞĞÃüÁîº¯Êı
-		 * @param {String} name ÃüÁîº¯ÊıÃû
-		 * @param {String} params{0,} ´«µİ¸ø Ä¿±êÒ³ÃæµÄÃüÁî·½·¨ µÄ²ÎÊı£¬Ö»Ö§³Östring
-		 * @param {Function} callback ³É¹¦µÄ»Øµ÷º¯Êı£¬Ä¬ÈÏÎª¿Õº¯Êı
+		 * æ‰§è¡Œå‘½ä»¤å‡½æ•°
+		 * @param {String} name å‘½ä»¤å‡½æ•°å
+		 * @param {String} params{0,} ä¼ é€’ç»™ ç›®æ ‡é¡µé¢çš„å‘½ä»¤æ–¹æ³• çš„å‚æ•°ï¼Œåªæ”¯æŒstring
+		 * @param {Function} callback æˆåŠŸçš„å›è°ƒå‡½æ•°ï¼Œé»˜è®¤ä¸ºç©ºå‡½æ•°
 		 */
 		exec : function() {
 			var name = arguments[0], args = slice.call(arguments, 1);
 			var fun = this.command[name];
-			if (typeof fun != "undefined") {//ÆäËûÏûÏ¢
+			if (typeof fun != "undefined") {//å…¶ä»–æ¶ˆæ¯
 				if( typeof fun == 'function') {
 					fun.apply(this.command, args);
 				} else {
-					//¶ÔÓ¦µÄÊÇÊıÖµ»ò×Ö·û´®£¬Ö±½ÓÖ´ĞĞ»Øµ÷
+					//å¯¹åº”çš„æ˜¯æ•°å€¼æˆ–å­—ç¬¦ä¸²ï¼Œç›´æ¥æ‰§è¡Œå›è°ƒ
 					var len = arguments.length;
 					arguments[len-1](fun);
 				}
 			}
 		},
 		/**
-		 * this.command Ìí¼ÓÊôĞÔ£¬²ÎÊıÎªÒ»¸öÊ±£¬Ôò´«ÈëObject,½«ObjectµÄ×Ô¼ºµÄÊôĞÔÀ©Õ¹µ½_commandÉÏ
-		 * @param {String|Object} name StringÊ±keyÖµ
-		 * @param {Function} fun º¯Êı·½·¨
+		 * this.command æ·»åŠ å±æ€§ï¼Œå‚æ•°ä¸ºä¸€ä¸ªæ—¶ï¼Œåˆ™ä¼ å…¥Object,å°†Objectçš„è‡ªå·±çš„å±æ€§æ‰©å±•åˆ°_commandä¸Š
+		 * @param {String|Object} name Stringæ—¶keyå€¼
+		 * @param {Function} fun å‡½æ•°æ–¹æ³•
 		 */
 		add : function(name, fun) {
 			if(arguments.length == 1) {
@@ -380,9 +380,9 @@
 	};
   
 	/**
-	 * »ñÈ¡¿çÓò¶ÔÏó
-	 * @param {Object} configÅäÖÃ¶ÔÏó
-	 * @return {Object} ifrme½áµã
+	 * è·å–è·¨åŸŸå¯¹è±¡
+	 * @param {Object} configé…ç½®å¯¹è±¡
+	 * @return {Object} ifrmeç»“ç‚¹
 	 */
 	var jsURL = util.getCurrentScript();
 	var href = location.href;
@@ -423,8 +423,8 @@
 		
 		var pageType = 0;
 		var emptyFun = function () {};
-		if(isSameDomain) {//Í¬Óò
-			if(isClient == true) {//iframeÒ³
+		if(isSameDomain) {//åŒåŸŸ
+			if(isClient == true) {//iframeé¡µ
 				pageType = 2;
 				messageObj = getMessaage();
 				messageObj.send.setReady();
@@ -445,11 +445,11 @@
 						}
 						
 					},
-					command: commandList//¼ÈÊÇ¿Í»§¶Ë£¬Ò²ÊÇÖ÷¶Ë
+					command: commandList//æ—¢æ˜¯å®¢æˆ·ç«¯ï¼Œä¹Ÿæ˜¯ä¸»ç«¯
 				};
 			}
 		} else {
-			//Ö÷¶Ë
+			//ä¸»ç«¯
 			if(messageSport == 'name') {
 				messageObj = getMessaage(false);
 				var frame = util.iframeLoad(win, '', function() {
@@ -471,13 +471,13 @@
 		}
 		
 		return {
-			message: messageObj, //Í¨ĞÅ¶ÔÏó
+			message: messageObj, //é€šä¿¡å¯¹è±¡
 			mainCommand: mainCommand, 
 			clientCommand: clientCommand,
-			isMain: function () { //ÅĞ¶Ïµ±Ç°Ò³ÃæÖ÷¶Ë
+			isMain: function () { //åˆ¤æ–­å½“å‰é¡µé¢ä¸»ç«¯
 				return (pageType == 1 || pageType == 3);
 			},
-			isClient: function () { //ÅĞ¶Ïµ±Ç°Ò³Ãæ¿Í»§¶Ë
+			isClient: function () { //åˆ¤æ–­å½“å‰é¡µé¢å®¢æˆ·ç«¯
 				return (pageType == 2 || pageType == 3);
 			}
 		}
