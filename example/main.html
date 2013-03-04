@@ -16,7 +16,7 @@
 	};
 	var crossDomain = getCrossDomain(config);
 	
-	crossDomain.message.set({
+	crossDomain.message.set({ 
 		params2str: function () {
 			return JSON.stringify(slice.call(arguments, 0));
 		},
