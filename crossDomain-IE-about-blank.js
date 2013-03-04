@@ -1,5 +1,5 @@
 (function(win, doc, undefined) {
-	
+			
 	var slice = Array.prototype.slice;
 	var urlReg = /^[^:]+:\/*[^\/]+/;
 	var messageSport = !!win.postMessage ? 'postMessage' : 'name';
@@ -45,7 +45,6 @@
 		},
 		 /**
 		  * 动态添加ifrme结点，设置url，载入后回调
-		  * @param {window} win window对象
 		  * @param {String} url ifrme地址
 		  * @param {Function} callback？ifrme加载完成，回调方法
 		  * @return {Node} ifrme结点
@@ -137,7 +136,7 @@
 		};
 		message.set({
 			params2str: function () {
-				return slice.call(arguments,0).join('<{PA}>');
+				return slice.call(arguments).join('<{PA}>');
 			},
 			str2params: function (str) {
 				return str.split('<{PA}>');
@@ -321,7 +320,7 @@
 			if( typeof callback == 'function') {
 				cbmessage.send(cbmessage.params2str.apply(cbmessage, slice.call(arguments, 0, -1)),callback);
 			} else {
-				cbmessage.send(cbmessage.params2str.apply(cbmessage, slice.call(arguments, 0)));
+				cbmessage.send(cbmessage.params2str.apply(cbmessage, slice.call(arguments)));
 			}
 		};
 		resultObj.get = function (str, callback) {
@@ -415,7 +414,7 @@
 		commandList.exec = function () {
 			var name = arguments[0];
 			for (var i=0,len=this.length; i<len; i++) {
-				if  (!!this[i][name]) {
+				if  (!!this[i].command[name]) {
 					this[i].exec.apply(this[i], arguments);
 					return;
 				}
@@ -423,6 +422,7 @@
 		};
 		
 		var pageType = 0;
+		var emptyFun = function () {};
 		if(isSameDomain) {//同域
 			if(isClient == true) {//iframe页
 				pageType = 2;
@@ -431,12 +431,21 @@
 				messageObj.set({proxy:win.parent,command:clientCommand});
 			} else {
 				pageType = 3;
+				commandList.push(clientCommand,mainCommand);
 				messageObj = {
 					send : function() {
-						var command = this.command;
-						command.exec.apply(command, arguments);
+						var command = this.command, arg;
+						var callback = arguments[arguments.length-1];
+						if (typeof callback == 'function') {
+							command.exec.apply(command, arguments);
+						} else {
+							arg = slice.call(arguments);
+							arg.push(emptyFun);
+							command.exec.apply(command, arg);
+						}
+						
 					},
-					command: commandList.push(commandMap,mainCommand)//既是客户端，也是主端
+					command: commandList//既是客户端，也是主端
 				};
 			}
 		} else {

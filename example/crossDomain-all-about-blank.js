@@ -414,7 +414,7 @@
 		commandList.exec = function () {
 			var name = arguments[0];
 			for (var i=0,len=this.length; i<len; i++) {
-				if  (!!this[i][name]) {
+				if  (!!this[i].command[name]) {
 					this[i].exec.apply(this[i], arguments);
 					return;
 				}
@@ -430,12 +430,21 @@
 				messageObj.set({proxy:win.parent,command:clientCommand});
 			} else {
 				pageType = 3;
+				commandList.push(clientCommand,mainCommand);
 				messageObj = {
 					send : function() {
-						var command = this.command;
-						command.exec.apply(command, arguments);
+						var command = this.command, arg;
+						var callback = arguments[arguments.length-1];
+						if (typeof callback == 'function') {
+							command.exec.apply(command, arguments);
+						} else {
+							arg = slice.call(arguments);
+							arg.push(emptyFun);
+							command.exec.apply(command, arg);
+						}
+						
 					},
-					command: commandList.push(commandMap,mainCommand)//既是客户端，也是主端
+					command: commandList//既是客户端，也是主端
 				};
 			}
 		} else {
