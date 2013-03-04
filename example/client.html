@@ -1,7 +1,7 @@
 <body>
 </body>
-<script type="text/javascript" src="http://localhost:9099/json2.js"></script>
-<script type="text/javascript" src="http://localhost:9099/crossDomain-all-about-blank.js"></script>
+<!--script type="text/javascript" src="http://localhost:9099/json2.js"></script-->
+<script type="text/javascript" src="http://localhost:9099/crossDomain-IE-about-blank.js"></script>
 <script>
 (function () {
     var host = window.location.host;
@@ -15,7 +15,7 @@
 		clientUrl: "http://localhost:9098/client.html"
 	};
 	var crossDomain = getCrossDomain(config);
-	
+	/*
 	crossDomain.message.set({
 		params2str: function () {
 			return JSON.stringify(slice.call(arguments, 0));
@@ -23,16 +23,17 @@
 		str2params: function (str) {
 			return JSON.parse(str);
 		}
-	});
-	if (crossDomain.isClient()) {
+	});*/
+	if (crossDomain.isClient()) {//提供命令方，客户端
 		var clientMap = {
 			'your name': 'guwei',
 			'your mail': '89415119@qq.com',
 			'the date': new Date().toString()
 		}
 		crossDomain.clientCommand.add('clientCall', function() {
+			//添加命令，函数最后一个参数是一个callback函数，将需要返回的数据，传入给callback函数
 			try {
-				console.log('aa:'+arguments[2].aa);
+				console.log('aa:'+arguments[2].aa);//判断JSON支持
 			} catch (e) {}
 			var callback = arguments[arguments.length-1];
 			var ary = slice.call(arguments, 0, -1);
@@ -41,7 +42,7 @@
 				ary[i] = clientMap[ary[i]]||ary[i];
 			}
 			console.log(host+':'+ary);
-			callback.apply(null,ary);
+			callback.apply(null,ary);//即使有的API没有数据返回，也需要执行下callback
 			
 		});
 		crossDomain.message.send('mainCall','client call','hello2');
