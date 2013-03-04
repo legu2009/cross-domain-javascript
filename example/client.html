@@ -7,8 +7,8 @@
     var host = window.location.host;
 	var slice = Array.prototype.slice;
 	typeof console == "undefined" && (console = {
-		log: function (str) {
-			alert(str);
+		log: function () {
+			alert(slice.call(arguments).join(''));
 		}
 	});
 	var config = {
@@ -24,16 +24,17 @@
 			return JSON.parse(str);
 		}
 	});*/
-	if (crossDomain.isClient()) {//æä¾›å‘½ä»¤æ–¹ï¼Œå®¢æˆ·ç«¯
+	if (crossDomain.isClient()) {//Ìá¹©ÃüÁî·½£¬¿Í»§¶Ë
 		var clientMap = {
 			'your name': 'guwei',
 			'your mail': '89415119@qq.com',
 			'the date': new Date().toString()
 		}
 		crossDomain.clientCommand.add('clientCall', function() {
-			//æ·»åŠ å‘½ä»¤ï¼Œå‡½æ•°æœ€åä¸€ä¸ªå‚æ•°æ˜¯ä¸€ä¸ªcallbackå‡½æ•°ï¼Œå°†éœ€è¦è¿”å›çš„æ•°æ®ï¼Œä¼ å…¥ç»™callbackå‡½æ•°
+			//Ìí¼ÓÃüÁî£¬º¯Êı×îºóÒ»¸ö²ÎÊıÊÇÒ»¸öcallbackº¯Êı£¬½«ĞèÒª·µ»ØµÄÊı¾İ£¬´«Èë¸øcallbackº¯Êı
+			console.log('clientCall:',slice.call(arguments));
 			try {
-				console.log('aa:'+arguments[2].aa);//åˆ¤æ–­JSONæ”¯æŒ
+				console.log('aa:'+arguments[2].aa);//ÅĞ¶ÏJSONÖ§³Ö
 			} catch (e) {}
 			var callback = arguments[arguments.length-1];
 			var ary = slice.call(arguments, 0, -1);
@@ -41,8 +42,7 @@
 			for (var i =0;i<ary.length;i++) {
 				ary[i] = clientMap[ary[i]]||ary[i];
 			}
-			console.log(host+':'+ary);
-			callback.apply(null,ary);//å³ä½¿æœ‰çš„APIæ²¡æœ‰æ•°æ®è¿”å›ï¼Œä¹Ÿéœ€è¦æ‰§è¡Œä¸‹callback
+			callback.apply(null,ary);//¼´Ê¹ÓĞµÄAPIÃ»ÓĞÊı¾İ·µ»Ø£¬Ò²ĞèÒªÖ´ĞĞÏÂcallback
 			
 		});
 		crossDomain.message.send('mainCall','client call','hello2');
