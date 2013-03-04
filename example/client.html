@@ -4,11 +4,11 @@
 <script type="text/javascript" src="http://localhost:9099/crossDomain-IE-about-blank.js"></script>
 <script>
 (function () {
-    var host = window.location.host;
+    var host = 'client.html';//window.location.host;
 	var slice = Array.prototype.slice;
 	typeof console == "undefined" && (console = {
 		log: function () {
-			alert(slice.call(arguments).join(''));
+			alert(slice.call(arguments).join(':'));
 		}
 	});
 	var config = {
@@ -32,9 +32,9 @@
 		}
 		crossDomain.clientCommand.add('clientCall', function() {
 			//添加命令，函数最后一个参数是一个callback函数，将需要返回的数据，传入给callback函数
-			console.log('clientCall:',slice.call(arguments));
+			console.log(host+'@','clientCall:',slice.call(arguments));
 			try {
-				console.log('aa:'+arguments[2].aa);//判断JSON支持
+				console.log(host+'@','aa:'+arguments[2].aa);//判断JSON支持
 			} catch (e) {}
 			var callback = arguments[arguments.length-1];
 			var ary = slice.call(arguments, 0, -1);

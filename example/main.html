@@ -4,7 +4,7 @@
 <script type="text/javascript" src="http://localhost:9099/crossDomain-IE-about-blank.js"></script>
 <script>
 (function () {
-    var host = window.location.host;
+    var host = '  main.html';//window.location.host;
 	var slice = Array.prototype.slice;
 	typeof console == "undefined" && (console = {
 		log: function () {
@@ -28,14 +28,14 @@
 		function callback (str) {
 			var str = slice.call(arguments).join(',') + '=>>';
 			return function () {
-				console.log(str+slice.call(arguments).join(','));
+				console.log(host+'@',str+slice.call(arguments).join(','));
 			}
 			//console.log(host+':'+slice.call(arguments, 0).join(','));
 		}
 		crossDomain.mainCommand.add('mainCall', function() {
 			//添加命令，函数最后一个参数是一个callback函数，将需要返回的数据，传入给callback函数
 			//主端需要支持某个命令，应该没有应用场景
-			console.log('mainCall:', slice.call(arguments));
+			console.log(host+'@','mainCall:', slice.call(arguments));
 			var callback = arguments[arguments.length-1];
 			var ary = slice.call(arguments, 0, -1);
 			callback.apply(null,ary);//即使有的API没有数据返回，也需要执行下callback
