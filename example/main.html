@@ -11,12 +11,64 @@
 			alert(slice.call(arguments).join(''));
 		}
 	});
+	
+	//====================配置对象====================
 	var config = {
-		clientUrl: "http://localhost:9098/client.html"
-		//,aboutBlank: 'NO'//aboutBlank支持模式，建议
-		//,isSameDomain: false//即使同域，也通过message和name实现，（后期支持window方式，开放API，在客户端页面上，才有数据）
+		//====================目标页面，提供API的页面地址====================
+		clientUrl: "http://localhost:9098/client.html" 
+		
+		//====================aboutBlank支持设置====================
+		//,aboutBlank: 'NO'//['NO', 'IE', 'ALL'] ,建议默认值：'IE'
+		// 'NO':都不通过about:blank页面，存在问题，通过window.name污染主window
+		// 'IE':在不支持postMessage的时候，通过about:blank页面的window.name进行通信，不污染主window
+		//'ALL':都通过about:blank页面进行代理，不会监听主页面的message事件，实现隔离
+		
+		//====================同域情况处理【测试功能】====================
+		//,isSameDomain: false//可能脚本内部判断同域方法有问题，可以手动传入是否同域
+		//false: 当前页面和clientUrl，不同域，也通过message和name实现
+		//true: 当前页面和clientUrl，同域，直接通信
+		//不设置: util.isSameDomain() 进行判断
+		
+		//====================消息前缀设置====================
+		//,prefix: ''//默认值'_crossD_'//主要是区别不同的提供API方【一个页面引用2个的话，callback对应存在问题，除非公用uuid】
 	};
+	
+	//====================获得对象====================
 	var crossDomain = getCrossDomain(config);
+	
+	/*
+	crossDomain = {
+		//通信对象
+		message: {
+			send: function (命令名,参数[0-],callback?)//发送命令，callback为回调
+			set: function (name, val)|function (object)//底层message对象添加方法，属性，原型链继承，修改相关属性和方法，请通过该函数进行
+			prefix: 前缀属性
+			params2str//多参数支持方式,见下面代码
+			str2params//多参数支持方式,见下面代码
+			cbSeparator: callback分隔符
+			
+			bindMessage: function (window) //绑定get方法，自行调用
+			command: 命令对象，不建议修改
+			sport: 'postMessage' //['postMessage','name'],支持属性，不建议修改
+			get: function 内部方法，不要修改
+			child: 指向孩子message对象 内部属性，不要修改
+		}
+		//命令对象，命令对象进行了区分，主要是在不跨域的情况下也能使用该js的考虑
+		mainCommand: {    
+			exec: function (str,callback) //解析str，获得命令名，参数，进行执行相关定义的命令函数
+			add: 添加命令支持
+		}
+		clientCommand: {    
+			exec: function (str,callback) //解析str，获得命令名，参数，进行执行相关定义的命令函数
+			add: 添加命令支持
+		}  
+		//其实主要是项目中，客户端和主端都是自己的项目，所以支持这两个函数，写入一个js可以提高缓存
+		isMain: function       //判断当前页面是否主端，返回true,false，
+		isClient: function     //判断当前页面是否客户端，返回true,false
+	}
+	*/
+	
+	
 	/* 
 	crossDomain.message.set({
 		params2str: function () {
@@ -48,7 +100,6 @@
 		crossDomain.message.send('clientCall','your mail',callback('your mail'));
 		crossDomain.message.send('clientCall','your mail', 'the date',{'aa':123},callback('your mail', 'the date',{'aa':123}));//多参数支持
 
-	};
-	
+	};	
 })();
 </script>

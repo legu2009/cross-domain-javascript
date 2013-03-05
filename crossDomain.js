@@ -359,7 +359,7 @@
 		exec : function() {
 			var name = arguments[0], args = slice.call(arguments, 1);
 			var fun = this.command[name];
-			if (fun === undefined) {//没有定义的命令，不处理
+			if (fun !== undefined) {//没有定义的命令，不处理
 				if( typeof fun == 'function') {
 					fun.apply(this.command, args);
 				} else {
@@ -402,7 +402,7 @@
 		
 		var clientUrl = config.clientUrl;
 		var aboutBlank = config.aboutBlank||'IE';//'IE','NO','ALL'
-		var isSameDomain = config.isSameDomain === undefined ? util.isSameDomain(href, clientUrl)|| !!config.isSameDomain;//当前页面和API提供地址是不是同域
+		var isSameDomain = config.isSameDomain === undefined ? util.isSameDomain(href, clientUrl):!!config.isSameDomain;//当前页面和API提供地址是不是同域
 		//获取消息对象
 		var getMessaage = messageSport == 'name'? function (isBindMessage) {
 			var obj = dealMessage(callbackMessage(ieMessage(prefixMessage(message(), config.prefix))));
