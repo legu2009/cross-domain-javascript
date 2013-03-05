@@ -1,7 +1,7 @@
 <body>
 </body>
 <!--script type="text/javascript" src="http://localhost:9099/json2.js"></script-->
-<script type="text/javascript" src="http://localhost:9099/crossDomain-IE-about-blank.js"></script>
+<script type="text/javascript" src="http://localhost:9099/crossDomain.js"></script>
 <script>
 (function () {
     var host = '  main.html';//window.location.host;
@@ -13,6 +13,7 @@
 	});
 	var config = {
 		clientUrl: "http://localhost:9098/client.html"
+		//,aboutBlank: 'NO'
 	};
 	var crossDomain = getCrossDomain(config);
 	/* 

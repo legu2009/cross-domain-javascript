@@ -4,6 +4,7 @@
 	var urlReg = /^[^:]+:\/*[^\/]+/;
 	var messageSport = !!win.postMessage ? 'postMessage' : 'name';
 	var hasOwn = Object.prototype.hasOwnProperty;
+	var emptyFun = function () {};
 	
 	//============================公共函数===========================
 	var util = {
@@ -251,7 +252,6 @@
 		cbSeparator || (cbSeparator = '<{CB}>');
 		var uuid = 0;
 		var _callbackMap = {};
-		var emptyFun = function () {};
 		
 		var fun = function () {};
 		fun.prototype = message;
@@ -401,6 +401,7 @@
 		var clientCommand = new Command();//客户端命令
 		
 		var clientUrl = config.clientUrl;
+		var aboutBlank = config.aboutBlank||'IE';//'IE','NO','ALL'
 		var isSameDomain = config.isSameDomain || util.isSameDomain(href, clientUrl);//当前页面和API提供地址是不是同域
 		//获取消息对象
 		var getMessaage = messageSport == 'name'? function (isBindMessage) {
@@ -433,7 +434,6 @@
 		};
 		
 		var pageType = 0;
-		var emptyFun = function () {};
 		if(isSameDomain) {//同域
 			if(isClient == true) {//iframe页
 				pageType = 2;
@@ -461,7 +461,13 @@
 			}
 		} else {
 			//主端
-			if(messageSport == 'name') {//IE的情况，使用about:blank代理
+			if (aboutBlank == 'NO' || (aboutBlank == 'IE' && messageSport == 'postMessage')) {
+				messageObj = getMessaage();
+				var frame = util.iframeLoad(win, clientUrl, function() {
+					messageObj.set('proxy', frame.contentWindow);
+					messageObj.send.setReady();
+				});
+			} else if (aboutBlank == 'ALL'|| (aboutBlank == 'IE' && messageSport == 'name')) {
 				messageObj = getMessaage(false);
 				var frame = util.iframeLoad(win, '', function() {
 					messageObj.bindMessage(frame.contentWindow);
@@ -469,12 +475,6 @@
 						messageObj.set('proxy',proxframe.contentWindow);
 						messageObj.send.setReady();
 					});
-				});
-			} else {
-				messageObj = getMessaage();
-				var frame = util.iframeLoad(win, clientUrl, function() {
-					messageObj.set('proxy', frame.contentWindow);
-					messageObj.send.setReady();
 				});
 			}
 			messageObj.set('command', mainCommand);
