@@ -359,7 +359,7 @@
 		exec : function() {
 			var name = arguments[0], args = slice.call(arguments, 1);
 			var fun = this.command[name];
-			if (typeof fun != "undefined") {//没有定义的命令，不处理
+			if (fun !== undefined) {//没有定义的命令，不处理
 				if( typeof fun == 'function') {
 					fun.apply(this.command, args);
 				} else {
@@ -402,7 +402,7 @@
 		
 		var clientUrl = config.clientUrl;
 		var aboutBlank = config.aboutBlank||'IE';//'IE','NO','ALL'
-		var isSameDomain = config.isSameDomain || util.isSameDomain(href, clientUrl);//当前页面和API提供地址是不是同域
+		var isSameDomain = config.isSameDomain === undefined ? util.isSameDomain(href, clientUrl):!!config.isSameDomain;//当前页面和API提供地址是不是同域
 		//获取消息对象
 		var getMessaage = messageSport == 'name'? function (isBindMessage) {
 			var obj = dealMessage(callbackMessage(ieMessage(prefixMessage(message(), config.prefix))));
@@ -434,31 +434,30 @@
 		};
 		
 		var pageType = 0;
-		if(isSameDomain) {//同域
-			if(isClient == true) {//iframe页
-				pageType = 2;
-				messageObj = getMessaage();
-				messageObj.send.setReady();
-				messageObj.set({proxy:win.parent,command:clientCommand});
-			} else {//没有跨域，没有跨域，多参不需要转成字符串，所以默认就支持多种格式
-				pageType = 3;
-				commandList.push(clientCommand,mainCommand);
-				messageObj = {
-					send : function() {
-						var command = this.command, arg;
-						var callback = arguments[arguments.length-1];
-						if (typeof callback == 'function') {
-							command.exec.apply(command, arguments);
-						} else {
-							arg = slice.call(arguments);
-							arg.push(emptyFun);
-							command.exec.apply(command, arg);
-						}
-						
-					},
-					command: commandList//既是客户端，也是主端
-				};
-			}
+
+		if(isClient == true) {//iframe页
+			pageType = 2;
+			messageObj = getMessaage();
+			messageObj.send.setReady();
+			messageObj.set({proxy:win.parent,command:clientCommand});
+		} else if (isSameDomain) {//没有跨域，没有跨域，多参不需要转成字符串，所以默认就支持多种格式
+			pageType = 3;
+			commandList.push(clientCommand,mainCommand);
+			messageObj = {
+				send : function() {
+					var command = this.command, arg;
+					var callback = arguments[arguments.length-1];
+					if (typeof callback == 'function') {
+						command.exec.apply(command, arguments);
+					} else {
+						arg = slice.call(arguments);
+						arg.push(emptyFun);
+						command.exec.apply(command, arg);
+					}
+					
+				},
+				command: commandList//既是客户端，也是主端
+			};
 		} else {
 			//主端
 			if (aboutBlank == 'NO' || (aboutBlank == 'IE' && messageSport == 'postMessage')) {

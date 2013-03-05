@@ -13,7 +13,8 @@
 	});
 	var config = {
 		clientUrl: "http://localhost:9098/client.html"
-		//,aboutBlank: 'NO'
+		//,aboutBlank: 'NO'//aboutBlank支持模式，建议
+		//,isSameDomain: false//即使同域，也通过message和name实现，（后期支持window方式，开放API，在客户端页面上，才有数据）
 	};
 	var crossDomain = getCrossDomain(config);
 	/* 
