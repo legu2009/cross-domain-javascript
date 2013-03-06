@@ -17,33 +17,6 @@
 			var strA = urlA.match(urlReg)[0].replace(/:80$/,'').replace(/:\/+/,''),strB = urlB.match(urlReg)[0].replace(/:80$/,'').replace(/:\/+/,'');
 			return  strA == strB;
 		},
-		//来自司徒正妹的mass框架
-		//https://github.com/RubyLouvre/mass-Framework/blob/master/mass.js line 407
-		getCurrentScript: function () {
-			if (doc.currentScript) { 
-				return doc.currentScript.src;
-			}
-			var stack;
-			try {
-				throw new Error();
-			} catch (e) {
-				stack = e.stack;
-				if (!stack && win.opera) {
-					stack = (String(e).match(/of linked script \S+/g) || []).join(" ");
-				}
-			}
-			if (stack) {
-				stack = stack.split(/[@ ]/g).pop(); 
-				stack = stack[0] === "(" ? stack.slice(1, -1) : stack;
-				return stack.replace(/(:\d+)?:\d+$/i, "");
-			}
-			var nodes = doc.getElementsByTagName("script");
-			for (var i = 0, node; node = nodes[i++]; ) {
-				if (node.readyState === "interactive") {
-					return node.src;
-				}
-			}
-		},
 		 /**
 		  * win动态添加ifrme结点，设置url，载入后回调
 		  * @param {window} win window对象
@@ -395,7 +368,6 @@
 	 * @param {Object} config配置对象
 	 * @return {Object} ifrme结点
 	 */
-	var jsURL = util.getCurrentScript();
 	var href = location.href;
 	function getCrossDomain (config) {
 		var messageObj;
