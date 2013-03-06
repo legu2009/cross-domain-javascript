@@ -97,6 +97,7 @@
 	
 	//============================通信对象===========================
 	//底层通信对象
+	var uuid = 0;
 	function message() {
 		var hash = '';
 		var message = {
@@ -153,7 +154,6 @@
 	//修正IE,使IE支持多消息的支持
 	function ieMessage (message, ieSeparator) {
 		ieSeparator || (ieSeparator = ['<{IE}>', '{<IE>}']);
-		var uuid = 0;
 		var sendMap = {};//主动发出的消息
 		var cancelMap = {};//正在处理中的数据，通知不需要再传送
 		
@@ -235,7 +235,7 @@
 		var resultObj = new fun();
 		message.child = resultObj;
 		
-		resultObj.set('prefix', prefix||'_crossD_');
+		resultObj.set('prefix', prefix||'_crossD_');//多个使用默认存在问题，建议clientUrl MD5签名
 		resultObj.send =  function (data) {
 			message.send(this.prefix+data);
 		};
@@ -250,7 +250,6 @@
 	//回调机制的支持，callback进行缓存，对应消息返回时，对消息内容执行对应的callback
 	function callbackMessage (message, cbSeparator) {
 		cbSeparator || (cbSeparator = '<{CB}>');
-		var uuid = 0;
 		var _callbackMap = {};
 		
 		var fun = function () {};
@@ -304,8 +303,10 @@
 			} else {
 				//回调执行 结果
 				data = params.join(cbSeparator);
-				_callbackMap[uid].apply(null, message.str2params(data));
-				delete _callbackMap[uid];
+				if (!!_callbackMap[uid]) {//多个情况，不一定是存在的
+					_callbackMap[uid].apply(null, message.str2params(data));
+					delete _callbackMap[uid];
+				}
 			}
 		};
 		return resultObj;
@@ -318,6 +319,7 @@
 		fun.prototype = cbmessage;
 		var resultObj = new fun();
 		cbmessage.child = resultObj;
+		resultObj.child = null;
 		
 		resultObj.set('command', command);
 		resultObj.send = function () {//fnName, params, callback
@@ -401,7 +403,7 @@
 		var clientCommand = new Command();//客户端命令
 		
 		var clientUrl = config.clientUrl;
-		var aboutBlank = config.aboutBlank||'IE';//'IE','NO','ALL'
+		var aboutBlank = config.aboutBlank||'IE';//'IE','ALL'
 		var isSameDomain = config.isSameDomain === undefined ? util.isSameDomain(href, clientUrl):!!config.isSameDomain;//当前页面和API提供地址是不是同域
 		//获取消息对象
 		var getMessaage = messageSport == 'name'? function (isBindMessage) {
@@ -440,7 +442,7 @@
 			messageObj = getMessaage();
 			messageObj.send.setReady();
 			messageObj.set({proxy:win.parent,command:clientCommand});
-		} else if (isSameDomain) {//没有跨域，没有跨域，多参不需要转成字符串，所以默认就支持多种格式
+		} else if (isSameDomain) {//没有跨域，没有跨域，多参不需要转成字符串，所以默认就支持多种格式,【测试，没有具体情况】
 			pageType = 3;
 			commandList.push(clientCommand,mainCommand);
 			messageObj = {
@@ -460,13 +462,13 @@
 			};
 		} else {
 			//主端
-			if (aboutBlank == 'NO' || (aboutBlank == 'IE' && messageSport == 'postMessage')) {
+			if (aboutBlank == 'IE' && messageSport == 'postMessage') {
 				messageObj = getMessaage();
 				var frame = util.iframeLoad(win, clientUrl, function() {
 					messageObj.set('proxy', frame.contentWindow);
 					messageObj.send.setReady();
 				});
-			} else if (aboutBlank == 'ALL'|| (aboutBlank == 'IE' && messageSport == 'name')) {
+			} else if (aboutBlank != 'IE'|| (aboutBlank == 'IE' && messageSport == 'name')) {
 				messageObj = getMessaage(false);
 				var frame = util.iframeLoad(win, '', function() {
 					messageObj.bindMessage(frame.contentWindow);
@@ -476,7 +478,7 @@
 					});
 				});
 			}
-			messageObj.set('command', mainCommand);
+			messageObj.set('command', mainCommand);			
 			pageType = 1;
 		}
 		
