@@ -1,6 +1,9 @@
 cross-domain-javascript
 =======================
 
+该方案已过时，window.name方式存在一些BUG情况，请使用下文链接技术实现IE低版本跨域处理
+（http://www.alloyteam.com/2013/11/the-second-version-universal-solution-iframe-cross-domain-communication/）
+
 javascript通过window.name和window.postMessage实现跨域（兼容浏览器）的双向通信，通信主要是通过callback机制回调模式 .
   
 window对象暴露方法名getCrossDomain
